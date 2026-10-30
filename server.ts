@@ -300,15 +300,17 @@ async function startServer() {
   });
 
   // Setup Vite dev server or static files
-  const isProduction = process.env.NODE_ENV === 'production';
   const distPath = path.resolve(__dirname, 'dist');
+  const distIndexHtml = path.resolve(distPath, 'index.html');
 
-  if (isProduction || fs.existsSync(distPath)) {
+  if (fs.existsSync(distIndexHtml)) {
+    console.log('📦 Serving production static build from dist/');
     app.use(express.static(distPath));
     app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.resolve(distPath, 'index.html'));
+      res.sendFile(distIndexHtml);
     });
   } else {
+    console.log('⚡ dist/index.html not found; mounting Vite dynamically...');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
